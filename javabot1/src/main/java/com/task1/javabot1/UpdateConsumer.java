@@ -8,13 +8,13 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-
 @Component
 public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
     private TelegramClient telegramClient;
 
     public UpdateConsumer() {
+
         this.telegramClient = new OkHttpTelegramClient("8041260277:AAEYtEIvo7Emr1_7S2fqP0p4QYXRbd0htGY");
     }
 
@@ -26,27 +26,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
             System.out.printf("Пришло сообщение %s от %s%n", userText, chatId);
 
-            String replyText;
-
-            // Обработка команд
-            switch (userText) {
-                case "/start" -> replyText = """
-                        Привет! 👋
-                        Я эхо-бот. 
-                        Я умею:
-                        - Повторять твои сообщения
-                        - Показывать список команд (/help)
-                        """;
-
-                case "/help" -> replyText = """
-                        Вот что я умею:
-                        /start - познакомиться со мной
-                        /help  - список всех команд
-                        (любое другое сообщение я повторю тебе обратно)
-                        """;
-
-                default -> replyText = "Твое сообщение: " + userText;
-            }
+            String replyText = processUserInput(userText);
 
             SendMessage message = SendMessage.builder()
                     .chatId(chatId)
@@ -61,4 +41,26 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         }
     }
 
+    /**
+     * Логика обработки пользовательского ввода вынесена в отдельный метод.
+     * Удобно для тестирования.
+     */
+    public String processUserInput(String userInput) {
+        return switch (userInput) {
+            case "/start" -> """
+                    Привет!
+                    Я эхо-бот. 
+                    Я умею:
+                    - Повторять твои сообщения
+                    - Показывать список команд (/help)
+                    """;
+            case "/help" -> """
+                    Вот что я умею:
+                    /start - познакомиться со мной
+                    /help  - список всех команд
+                    (любое другое сообщение я повторю тебе обратно)
+                    """;
+            default -> "Твое сообщение: " + userInput;
+        };
+    }
 }
